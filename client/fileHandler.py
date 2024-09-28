@@ -10,7 +10,8 @@ class FileHandler:
     def write_number(self, number: int):
         reset_needed = self.check_if_reset_needed()
         if reset_needed:
-            self.save_and_reset()
+            self.save()
+            self.reset()
 
         with open(self.file_name, 'a') as f:
             f.write(f'\n{number}')
@@ -18,12 +19,21 @@ class FileHandler:
     def check_if_reset_needed(self):
         with open(self.file_name, 'r') as f:
             datehour_str = f.readline().strip()
-            time_created = datetime.strptime(datehour_str, "%Y-%m-%d %H")
+
+            if not datehour_str:
+                self.reset()
+                return False
+
+            try:
+                time_created = datetime.strptime(datehour_str, "%Y-%m-%d %H")
+            except ValueError:
+                self.reset()
+                return False
             current_time = datetime.now()
 
             return current_time - time_created >= timedelta(hours=1)
         
-    def save_and_reset(self):
+    def save(self):
         index = self.update_registry_index()
         temp_dir = os.environ.get('TEMP') or os.environ.get('TMP')
         print(temp_dir)
@@ -34,6 +44,7 @@ class FileHandler:
         with open(os.path.join(temp_dir, 'CyberIsGood', f'{index}.tmp'), 'w') as temp_file:
             temp_file.write(file_content)
 
+    def reset(self):
         now = datetime.now()
         datehour_str = now.strftime('%Y-%m-%d %H')
         with open(self.file_name, 'w') as original_file:

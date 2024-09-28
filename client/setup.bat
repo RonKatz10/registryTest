@@ -3,6 +3,8 @@ setlocal enabledelayedexpansion
 
 set "regPath=HKEY_CURRENT_USER\Software\CyberIsGood\Client"
 set "dirPath=%TEMP%\CyberIsGood"
+set "tmpFile=call_numbers.tmp"
+set "tmpPath=%~dp0%tmpFile%"
 
 rem Check if directory key exists, if not create it.
 reg query %regPath% >nul 2>&1
@@ -51,5 +53,12 @@ if not exist "%dirPath%" (
     echo Temp directory already exists.
 )
 
-endlocal
+rem Check if call_numbers.tmp exists, if not create it.
+if not exist %tmpPath% (
+    echo File call_numbers.tmp does not exist. Creating it...
+    type nul > "%tmpPath%"
+) else (
+    echo File call_numbers.tmp already exists.
+)
 
+endlocal
